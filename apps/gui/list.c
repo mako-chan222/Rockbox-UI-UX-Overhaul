@@ -50,7 +50,7 @@ void apple2026_ensure_dense_font(void)
 {
     if (apple2026_dense_font_id < 0)
         apple2026_dense_font_id =
-            font_load(FONT_DIR "/16-SFProText-Regular.fnt");
+            font_load(FONT_DIR "/16-arial-unicode-ms-bold.fnt");
 }
 #endif
 
