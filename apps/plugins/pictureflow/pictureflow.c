@@ -4986,11 +4986,13 @@ static bool init(void)
 
 #if (LCD_WIDTH == 320) && (LCD_HEIGHT == 240) && defined(HAVE_LCD_COLOR)
     /* Tracklist 16 Regular; album/artist also 16 Regular — matches dense
-     * track-list font used in the Music file browser (Apple2026 font tier). */
+     * track-list font used in the Music file browser (Apple2026 font tier).
+     * Uses the CJK-capable Arial Unicode MS Bold so Japanese track/album
+     * titles render correctly (the original SFProText font is Latin-only). */
     {
-        int id = rb->font_load(ROCKBOX_DIR "/fonts/16-SFProText-Regular.fnt");
+        int id = rb->font_load(ROCKBOX_DIR "/fonts/16-arial-unicode-ms-bold.fnt");
         pf_tracklist_font_id = id >= 0 ? id : -1;
-        id = rb->font_load(ROCKBOX_DIR "/fonts/16-SFProText-Regular.fnt");
+        id = rb->font_load(ROCKBOX_DIR "/fonts/16-arial-unicode-ms-bold.fnt");
         pf_album_title_font_id = id >= 0 ? id : -1;
     }
 #endif

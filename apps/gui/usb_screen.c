@@ -287,9 +287,6 @@ void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
 #endif
 
     struct usb_screen_vps_t usb_screen_vps_ar[NB_SCREENS];
-#ifdef USB_ENABLE_HID
-    int last_drawn_keypad_mode;
-#endif
 #if defined HAVE_TOUCHSCREEN
     enum touchscreen_mode old_mode = touchscreen_get_mode();
 
@@ -331,33 +328,16 @@ void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
 
     usb_acknowledge(SYS_USB_CONNECTED_ACK, seqnum);
 
-#ifdef USB_ENABLE_HID
-    last_drawn_keypad_mode = usb_keypad_mode;
-#endif
-    /* Draw once on entry. Redrawing every poll tick (below) was resetting
-     * puts_scroll()'s scroll animation before it could finish, which is
-     * why the "Connected" / mode-title text appeared to flash and never
-     * actually scroll. */
-    usb_screens_draw(usb_screen_vps_ar);
-
     while (1)
     {
+        usb_screens_draw(usb_screen_vps_ar);
 #ifdef SIMULATOR
         if (button_get_w_tmo(HZ/2))
             break;
         send_event(GUI_EVENT_ACTIONUPDATE, NULL);
-        usb_screens_draw(usb_screen_vps_ar);
 #else
         if (handle_usb_events())
             break;
-#ifdef USB_ENABLE_HID
-        /* Only redraw when the displayed mode actually changed. */
-        if (usb_keypad_mode != last_drawn_keypad_mode)
-        {
-            usb_screens_draw(usb_screen_vps_ar);
-            last_drawn_keypad_mode = usb_keypad_mode;
-        }
-#endif
 #endif /* SIMULATOR */
     }
 
