@@ -700,7 +700,7 @@ struct menu_item_ex root_menu_;
 static struct menu_callback_with_desc root_menu_desc = {
         item_callback, ID2P(LANG_ROCKBOX_TITLE), Icon_Rockbox };
 
-#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71)
+#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71) || (MODEL_NUMBER == 9) || (MODEL_NUMBER == 11)
 /* Apple2026: no Plugins / Shortcuts at root — keep shell music-first.
  * Cover Flow is second since it is a core playback surface, not a utility.
  * System (info/credits/debug) folded into Settings; accessible via

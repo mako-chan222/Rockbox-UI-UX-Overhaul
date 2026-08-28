@@ -3154,7 +3154,11 @@ static inline pix_t fade_color(pix_t c, unsigned a)
  * unlike lcd_fillrect(DRMODE_SOLID) which fills with fg_pattern. */
 static void pf_clear_display(void)
 {
+#ifdef USEGSLIB
+    grey_clear_display();
+#else
     rb->screens[SCREEN_MAIN]->clear_viewport();
+#endif
 }
 
 static void render_slide(struct slide_data *slide, const int alpha)
@@ -3495,7 +3499,7 @@ static void render_all_slides(void)
 #ifdef HAVE_LCD_COLOR
     mylcd_set_background(pf_bg_color);
 #else
-    mylcd_set_background(G_BRIGHT(0));
+    mylcd_set_background(G_BRIGHT(255));
 #endif
     /* TODO: Optimizes this by e.g. invalidating rects */
     pf_clear_display();
@@ -4769,6 +4773,27 @@ static bool start_playback(bool return_to_WPS)
 }
 #endif /* PF_PLAYBACK_CAPABLE */
 
+#ifndef HAVE_LCD_COLOR
+/**
+   Draw text with a 1px outline so it stays legible whether it sits
+   over the plain (white) background or the darker album reflection.
+   Fill is drawn black (visible on white bg); the white outline keeps
+   the shape readable as a silhouette over the dark reflection area,
+   where the black fill would otherwise blend in and disappear.
+ */
+static void mylcd_putsxy_outline(int x, int y, const char *str)
+{
+    mylcd_set_foreground(G_BRIGHT(255));
+    mylcd_putsxy(x - 1, y, str);
+    mylcd_putsxy(x + 1, y, str);
+    mylcd_putsxy(x, y - 1, str);
+    mylcd_putsxy(x, y + 1, str);
+
+    mylcd_set_foreground(G_BRIGHT(0));
+    mylcd_putsxy(x, y, str);
+}
+#endif
+
 /**
    Draw the current album name
  */
@@ -4823,8 +4848,6 @@ static void draw_album_text(void)
 
 #ifdef HAVE_LCD_COLOR
     mylcd_set_foreground(pf_color_mix(c));
-#else
-    mylcd_set_foreground(G_BRIGHT(c));
 #endif
 #if (LCD_WIDTH == 320) && (LCD_HEIGHT == 240) && defined(HAVE_LCD_COLOR)
     if (pf_album_title_font_id >= 0)
@@ -4864,16 +4887,28 @@ static void draw_album_text(void)
         /* iPod Classic 6G custom: compare seek (unique per album) instead
            of name_idx (byte offset that can collide after sort/dedup) */
         if (pf_idx.album_index[albumtxt_index].seek != pf_idx.album_untagged_seek)
+#ifdef HAVE_LCD_COLOR
             mylcd_putsxy(albumtxt_x, albumtxt_y, album_and_year);
+#else
+            mylcd_putsxy_outline(albumtxt_x, albumtxt_y, album_and_year);
+#endif
 
         artisttxt = get_album_artist(albumtxt_index);
         if (album_changed)
             set_scroll_line(artisttxt, PF_SCROLL_ARTIST);
         artisttxt_x = get_scroll_line_offset(PF_SCROLL_ARTIST);
         int y_offset = char_height * 3 / 4;
+#ifdef HAVE_LCD_COLOR
         mylcd_putsxy(artisttxt_x, albumtxt_y + y_offset, artisttxt);
+#else
+        mylcd_putsxy_outline(artisttxt_x, albumtxt_y + y_offset, artisttxt);
+#endif
     } else {
+#ifdef HAVE_LCD_COLOR
         mylcd_putsxy(albumtxt_x, albumtxt_y, album_and_year);
+#else
+        mylcd_putsxy_outline(albumtxt_x, albumtxt_y, album_and_year);
+#endif
     }
 #if (LCD_WIDTH == 320) && (LCD_HEIGHT == 240) && defined(HAVE_LCD_COLOR)
     if (pf_album_title_font_id >= 0)

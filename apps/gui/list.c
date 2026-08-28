@@ -42,15 +42,18 @@
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_albumart_color.h"
 #include "apple2026_shell.h"
-#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71)
-/* Dense list font (16pt Regular) — loaded once on first use.
- * Matches Cover Flow tracklist and album-level file browser density. */
+#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71) || (MODEL_NUMBER == 9) || (MODEL_NUMBER == 11)
 int apple2026_dense_font_id = -1;
 void apple2026_ensure_dense_font(void)
 {
     if (apple2026_dense_font_id < 0)
+#if (MODEL_NUMBER == 9) || (MODEL_NUMBER == 11)
+        apple2026_dense_font_id =
+            font_load(FONT_DIR "/10-mplus-gothic.fnt");
+#else
         apple2026_dense_font_id =
             font_load(FONT_DIR "/16-arial-unicode-ms-bold.fnt");
+#endif
 }
 #endif
 

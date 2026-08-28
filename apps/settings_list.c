@@ -321,9 +321,13 @@ static const char graphic_numeric[] = "graphic,numeric";
 
 /* Default theme settings */
 #if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71)
-/* RockPod: iPod Video (5) / Classic 6G/7G (71) — Apple2026 flagship shell */
 #define DEFAULT_WPSNAME  "Apple2026"
 #define DEFAULT_SBSNAME  "Apple2026"
+#define DEFAULT_FMS_NAME "cabbiev2"
+#elif (MODEL_NUMBER == 9) || (MODEL_NUMBER == 11)
+/* iPod mini 1G/2G: iRockit(J) flagship shell */
+#define DEFAULT_WPSNAME  "iRockit"
+#define DEFAULT_SBSNAME  "iRockit"
 #define DEFAULT_FMS_NAME "cabbiev2"
 #else
 #define DEFAULT_WPSNAME  "cabbiev2"
@@ -2147,7 +2151,11 @@ const struct settings_list settings[] = {
     TEXT_SETTING(F_THEMESETTING|F_NEEDAPPLY,rsbs_file, "rsbs",
                      DEFAULT_SBSNAME, SBS_DIR "/", ".rsbs"),
 #endif
+#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71) || (MODEL_NUMBER == 9) || (MODEL_NUMBER == 11)
+    TEXT_SETTING(0,lang_file,"lang","japanese",LANG_DIR "/",".lng"),
+#else
     TEXT_SETTING(0,lang_file,"lang","",LANG_DIR "/",".lng"),
+#endif
 #if LCD_DEPTH > 1
     TEXT_SETTING(F_THEMESETTING|F_NEEDAPPLY,backdrop_file,"backdrop",
                      DEFAULT_BACKDROP, NULL, NULL),

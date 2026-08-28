@@ -44,7 +44,7 @@
 #include "line.h"
 #include "../skin_engine/skin_albumart_color.h"
 #include "apple2026_shell.h"
-#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71)
+#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71) || (MODEL_NUMBER == 9) || (MODEL_NUMBER == 11)
 /* Reference to the dense font loaded in apps/gui/list.c */
 extern int apple2026_dense_font_id;
 extern void apple2026_ensure_dense_font(void);
@@ -300,8 +300,9 @@ void list_draw(struct screen *display, struct gui_synclist *list)
         callback_draw_item = _default_listdraw_fn;
 
     struct viewport * last_vp = display->set_viewport(parent);
-#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71)
-    /* Apple2026: switch to dense 16pt font for track/song lists.
+#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71) || (MODEL_NUMBER == 9) || (MODEL_NUMBER == 11)
+    /* Switch to the dense font for track/song lists (16pt Latin on
+     * Apple2026 targets, 10px mplus-gothic on iPod mini).
      * We set the viewport font to the dense font slot so all text in this
      * draw pass uses it; restore FONT_UI after drawing is complete. */
     int apple2026_saved_font = -1;
@@ -598,7 +599,7 @@ void list_draw(struct screen *display, struct gui_synclist *list)
     }
     else
         display->update_viewport();
-#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71)
+#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71) || (MODEL_NUMBER == 9) || (MODEL_NUMBER == 11)
     /* Restore font if we switched to dense tier */
     if (apple2026_saved_font >= 0)
     {
