@@ -85,6 +85,8 @@ static volatile int locked = 0;
  * I2S DMA.  Used by USB audio source pull mode where the USB ISR
  * drives audio data instead of the DMA controller. */
 volatile bool pcm_dma_start_inhibit = false;
+/* true while the I2S clock is gated (set by pcm_play_dma_stop) */
+static bool i2s_clk_gated = false;
 static unsigned char dblbuf[2][WATERMARK_BYTES] CACHEALIGN_ATTR;
 static int active_dblbuf;
 size_t pcm_remaining;
@@ -155,6 +157,7 @@ void pcm_play_dma_start(const void* addr, size_t size)
     /* un-gate I2S clock before starting DMA */
     PWRCON(1) &= ~(1 << 7);
     I2SCLKCON = 1;
+    i2s_clk_gated = false;
 
     pcm_remaining = size;
     I2STXCOM = 0xe;
@@ -169,6 +172,7 @@ void pcm_play_dma_stop(void)
     /* gate I2S clock to save power when idle */
     I2SCLKCON = 0;
     PWRCON(1) |= (1 << 7);
+    i2s_clk_gated = true;
 }
 
 /* MCLK = 12MHz (MCLKDIV2=1), [CS42L55 DS, s4.8] */
@@ -180,6 +184,18 @@ void pcm_dma_apply_settings(void)
     static uint16_t last_clkcon3l = 0;
     uint16_t clkcon3l;
     int fsel;
+
+    /* pcm_apply_settings() is called from pcm_play_data() BEFORE
+     * pcm_play_dma_start(), i.e. while the I2S clock is still gated by
+     * pcm_play_dma_stop(). Writes to I2SCLKDIV are lost in that state, so
+     * a sample rate change (e.g. 44.1k -> 48k) never reaches the I2S
+     * controller while the CODEC is switched to the new rate: no sync,
+     * playback never starts. Un-gate temporarily and restore afterwards. */
+    bool was_gated = i2s_clk_gated;
+    if (was_gated) {
+        PWRCON(1) &= ~(1 << 7);
+        I2SCLKCON = 1;
+    }
 
     /* For unknown reasons, s5l8702 I2S controller does not synchronize
      * with CS42L55 at 32000 Hz. To fix it, the CODEC is configured with
@@ -210,6 +226,11 @@ void pcm_dma_apply_settings(void)
     I2SCLKDIV = MCLK_FREQ / hw_freq_sampr[fsel];
     /* select CS42L55 sample rate */
     audiohw_set_frequency(fsel);
+
+    if (was_gated) {
+        I2SCLKCON = 0;
+        PWRCON(1) |= (1 << 7);
+    }
 }
 
 void pcm_play_dma_init(void)
@@ -408,6 +429,7 @@ void pcm_rec_dma_init(void)
 
     I2SRXCON = 0x1000;
     I2SCLKCON = 1;
+    i2s_clk_gated = false;
 
     pcm_rec_initialized = true;
 }
