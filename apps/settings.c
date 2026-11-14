@@ -408,7 +408,7 @@ bool settings_load_config(const char* file, bool apply)
     bool theme_changed = false;
 
     fd = open_utf8(file, O_RDONLY);
-        if (fd < 0)
+    if (fd < 0)
         return false;
 
     /* if this config is inside the themes dir,
