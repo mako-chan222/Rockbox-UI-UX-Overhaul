@@ -5748,7 +5748,8 @@ Verified vs assumed:
 - Assumed until runtime check: the duplicate battery symptom is stale base-layer
   content surviving a partial refresh on hold transition; the new full-redraw
   gate is intended to prove or disprove that quickly.
- 
+
+ 
  ---
 
 ## 2026-04-11 - Apple2026 Filesystem Typography Hierarchy Fix
@@ -5756,8 +5757,10 @@ Verified vs assumed:
 Goal: stabilize the Apple2026 filesystem two-tier font selection, removing a state regression where visiting a tracklist (dense font) could force the root menus (normal font) into the dense size when backing out.
 
 Changed:
-- pps/tree.c: explicitly defaulted ockpod_list_font_tier to ROCKPOD_LIST_FONT_NORMAL at the start of directory drawing, overriding any leaked state from previous screens.
-- pps/menu.c: added ockpod_list_font_tier = ROCKPOD_LIST_FONT_NORMAL; explicitly on menu startup, guaranteeing that native screens never incorrectly inherit tracklist density.
+- pps/tree.c: explicitly defaulted 
+ockpod_list_font_tier to ROCKPOD_LIST_FONT_NORMAL at the start of directory drawing, overriding any leaked state from previous screens.
+- pps/menu.c: added 
+ockpod_list_font_tier = ROCKPOD_LIST_FONT_NORMAL; explicitly on menu startup, guaranteeing that native screens never incorrectly inherit tracklist density.
 - pps/root_menu.c: cleaned up obsolete font resets.
 
 Verified:
@@ -6315,3 +6318,17 @@ Next:
   - explicit `WPS Hotkey = View Playlist` override still opening Playlist
 - if the visual flicker is still reproducible outside the old playlist-viewer
   path, audit WPS restore/theme teardown separately as a second bug.
+
+## 2026-11-14
+
+- firmware/target/arm/s5l8702/pcm-s5l8702.c
+  I2Sクロックを止めた状態でI2SCLKDIVを書いていたため、44.1kHz→48kHz(96kHz FLAC含む)への
+  切り替えで再生が始まらなかった。pcm_dma_apply_settings()で一時的にクロックを有効にして書き込み、
+  元の状態に戻す。pcm_rec_dma_init()でも i2s_clk_gated を解除する。
+- apps/settings.c, apps/settings_list.c, apps/settings_list.h
+  テーマcfg(THEME_DIR配下)を適用する前に、テーマ用の設定を初期値へ戻す
+  (upstream ae83f59f2 FS#14030 相当)。backdrop は F_THEMERESET で「なし」に戻す。
+  list separator height と show icons を F_THEMESETTING 化。
+- apps/plugins/pictureflow/pictureflow.c
+  トラックリスト/アルバムタイトルのフォントを SFProText から
+  16-arial-unicode-ms-bold.fnt に変更(日本語表示用)。
