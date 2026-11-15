@@ -1252,11 +1252,7 @@ const struct settings_list settings[] = {
 #endif
 #if LCD_DEPTH > 1
     TABLE_SETTING(F_THEMESETTING|F_ALLOW_ARBITRARY_VALS, list_separator_height, LANG_LIST_SEPARATOR,
-#if (MODEL_NUMBER == 5) || (MODEL_NUMBER == 71)
-                  1,
-#else
                   0,
-#endif
                   "list separator height", "auto,off", UNIT_PIXEL,
                   list_pad_formatter, list_pad_getlang, NULL, 15,
                   -1,0,1,2,3,4,5,7,9,11,13,16,20,25,30),
